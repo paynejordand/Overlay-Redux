@@ -5,8 +5,34 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Overlay_Redux"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
+        Title="Apex Overlay" Height="200" Width="400">
+    <Window.Resources>
+        <Style TargetType="Button">
+            <Setter Property="Padding" Value="5,2"/>
+            <Setter Property="Margin" Value="5" />
+        </Style>
+    </Window.Resources>
+    <DockPanel>
+        <StatusBar DockPanel.Dock="Bottom">
+            <StatusBarItem>
+                <TextBlock x:Name="TxtServerStatus" Text="Server: Stopped"/>
+            </StatusBarItem>
+            <Separator/>
+            <StatusBarItem>
+                <TextBlock x:Name="TxtVerified" Text="Unverified" Foreground="Red"/>
+            </StatusBarItem>
+        </StatusBar>
 
-    </Grid>
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+            <Button x:Name="BtnStartWSS" Click="BtnStartWSS_Click">
+                <TextBlock>Start server</TextBlock>
+            </Button>
+            <Button x:Name="BtnMeds" Click="BtnMeds_Click">
+                <TextBlock>Preview Meds Window</TextBlock>
+            </Button>
+            <Button x:Name="BtnRespawn" Click="BtnRespawn_Click">
+                <TextBlock>Preview Respawn Banner</TextBlock>
+            </Button>
+        </StackPanel>
+    </DockPanel>
 </Window>
