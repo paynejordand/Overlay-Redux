@@ -51,7 +51,7 @@ namespace Overlay_Redux
             set { _ultAccels = value; OnPropertyChanged(nameof(UltAccels)); }
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
         protected void OnPropertyChanged(string name) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
     }
 }

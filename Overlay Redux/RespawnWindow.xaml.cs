@@ -23,7 +23,8 @@ namespace Overlay_Redux
                 FontSize = 24,
                 Foreground = new SolidColorBrush(Colors.Black),
                 Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#90EE90")),
-                Padding = new Thickness(8)
+                Padding = new Thickness(8),
+                TextAlignment = TextAlignment.Center,
             };
 
             BannerStack.Children.Add(banner);

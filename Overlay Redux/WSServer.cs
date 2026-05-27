@@ -10,16 +10,15 @@ using WatsonWebserver.Core;
 
 namespace Overlay_Redux
 {
-    public class WSServer
+    public class WSServer(string host = "localhost", int port = 7777, Action<string, List<string>>? respawnCallback = null)
     {
-        private readonly string _host;
-        private readonly int _port;
-        private readonly Action<string, List<string>> _respawnCallback;
-        public event Action<Dictionary<string, int>> MedsUpdated;
-        public event Action<string> StatusUpdated;
+        public event Action<Dictionary<string, int>>? MedsUpdated;
+        public event Action<string>? StatusUpdated;
+        public event Action? MatchSetup;
+        public event Action? MatchEnded;
 
-        private Webserver _server;
-        private string _activePlayer;
+        private Webserver? _server;
+        private string? _activePlayer;
         private readonly ConcurrentDictionary<string, Dictionary<string, int>> _allMeds = new();
 
         private static readonly Dictionary<string, string> Translator = new()
@@ -32,16 +31,9 @@ namespace Overlay_Redux
             { "Ultimate Accelerant (Level 3)", "ultimateAccelerants" }
         };
 
-        public WSServer(string host = "localhost", int port = 7777, Action<string, List<string>> respawnCallback = null)
-        {
-            _host = host;
-            _port = port;
-            _respawnCallback = respawnCallback;
-        }
-
         public void Start()
         {
-            WebserverSettings settings = new(_host, _port);
+            WebserverSettings settings = new(host, port);
             settings.WebSockets.Enable = true;
 
             _server = new Webserver(settings, DefaultRoute);
@@ -71,7 +63,7 @@ namespace Overlay_Redux
 
             _server.Start();
             StatusUpdated?.Invoke("Waiting to connect...");
-            Debug.WriteLine($"Serving on port {_port}...");
+            Debug.WriteLine($"Serving on port {port}...");
         }
 
         public void Stop()
@@ -98,7 +90,7 @@ namespace Overlay_Redux
 
                 case "playerConnected":
                     string nucleusHash = incoming.GetProperty("player").GetProperty("nucleusHash").GetString()!;
-                    _allMeds[nucleusHash!] = new Dictionary<string, int>
+                    _allMeds[nucleusHash] = new Dictionary<string, int>
                     {
                         { "syringes",           4 },
                         { "medkits",            0 },
@@ -109,9 +101,21 @@ namespace Overlay_Redux
                     };
                     break;
 
+                case "matchSetup":
+                    MatchSetup?.Invoke();
+                    break;
+
+                case "gameStateChanged":
+                    if (incoming.GetProperty("state").GetString() == "Resolution")
+                    {
+                        MatchEnded?.Invoke();
+                        _allMeds.Clear();
+                        _activePlayer = null;
+                    }
+                    break;
+
                 case "matchStateEnd":
-                    _allMeds.Clear();
-                    _activePlayer = null;
+                    // This event is specifically if the game reaches the "game over"/"champion" screen
                     break;
 
                 case "observerSwitched":
@@ -124,7 +128,7 @@ namespace Overlay_Redux
                     var players = new List<string>();
                     foreach (var player in incoming.GetProperty("respawnedTeammates").EnumerateArray())
                         players.Add(player.GetProperty("name").GetString()!);
-                    _respawnCallback?.Invoke(team, players);
+                    respawnCallback?.Invoke(team, players);
                     break;
 
                 case "inventoryPickUp":
@@ -147,7 +151,7 @@ namespace Overlay_Redux
         {
             string item = incoming.GetProperty("item").GetString()!;
 
-            if (!Translator.TryGetValue(item, out string medType))
+            if (!Translator.TryGetValue(item, out string? medType))
                 return;
 
             string hash = incoming.GetProperty("player").GetProperty("nucleusHash").GetString()!;

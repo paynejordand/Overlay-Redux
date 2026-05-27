@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Windows;
@@ -19,15 +20,17 @@ namespace Overlay_Redux
     public partial class MainWindow : Window
     {
         private WSServer _wss;
-        private CancellationTokenSource _cts;
-        private MedsWindow _medsWindow;
-        private RespawnWindow _respawnWindow;
+        private CancellationTokenSource? _cts;
+        private MedsWindow? _medsWindow;
+        private RespawnWindow? _respawnWindow;
         public MainWindow()
         {
             InitializeComponent();
             _wss = new(respawnCallback: HandleRespawn);
             _wss.MedsUpdated += HandleMedsUpdated;
             _wss.StatusUpdated += HandleStatusUpdated;
+            _wss.MatchSetup += HandleMatchSetup;
+            _wss.MatchEnded += HandleMatchEnded;
             string appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
             string settingsPath = System.IO.Path.Combine(appData, "OverlayRedux", "settings.json");
         }
@@ -39,11 +42,12 @@ namespace Overlay_Redux
             _cts = new CancellationTokenSource();
             Task.Run(() => _wss.Start(), _cts.Token);
         }
+
         private void HandleStatusUpdated(string status)
         {
             Dispatcher.Invoke(() => TxtServerStatus.Text = $"Server: {status}");
         }
-
+     
         // --- Meds Window ---
         private void BtnMeds_Click(object sender, RoutedEventArgs e)
         {
@@ -53,6 +57,24 @@ namespace Overlay_Redux
                 _medsWindow.Show();
             }
 
+        }
+        private void HandleMatchSetup()
+        {
+            Dispatcher.Invoke(() =>
+            {
+                _medsWindow?.Close();
+                _medsWindow = new MedsWindow();
+                _medsWindow.Show();
+            });
+        }
+
+        private void HandleMatchEnded()
+        {
+            Dispatcher.Invoke(() =>
+            {
+                _medsWindow?.Close();
+                _medsWindow = null;
+            });
         }
         private void HandleMedsUpdated(Dictionary<string, int> meds)
         {
@@ -72,7 +94,7 @@ namespace Overlay_Redux
         private void BtnRespawn_Click(object sender, RoutedEventArgs e)
         {
             EnsureRespawnWindow();
-            _respawnWindow.AddBanner(team: "RAH", players: new List<string> { "Stink", "Monty" }, duration: 0);
+            _respawnWindow!.AddBanner(team: "RAH", players: ["Stink", "Monty"], duration: 0);
         }
 
         private void HandleRespawn(string team, List<string> players)
@@ -80,7 +102,7 @@ namespace Overlay_Redux
             Dispatcher.Invoke(() =>
             {
                 EnsureRespawnWindow();
-                _respawnWindow.AddBanner(team, players);
+                _respawnWindow!.AddBanner(team, players);
             });
         }
 

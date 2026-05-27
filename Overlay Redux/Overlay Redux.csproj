@@ -1,36 +1,41 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <OutputType>WinExe</OutputType>
-    <TargetFramework>net8.0-windows</TargetFramework>
-    <RootNamespace>Overlay_Redux</RootNamespace>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <UseWPF>true</UseWPF>
-  </PropertyGroup>
+	<PropertyGroup>
+		<OutputType>WinExe</OutputType>
+		<TargetFramework>net8.0-windows</TargetFramework>
+		<RootNamespace>Overlay_Redux</RootNamespace>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<UseWPF>true</UseWPF>
+		<PublishSingleFile>true</PublishSingleFile>
+		<SelfContained>true</SelfContained>
+		<RuntimeIdentifier>win-x64</RuntimeIdentifier>
+		<DebugType>embedded</DebugType>
+		<IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <None Remove="Images\base.png" />
-    <None Remove="Images\Med Kit.png" />
-    <None Remove="Images\Phoenix Kit.png" />
-    <None Remove="Images\Shield Battery.png" />
-    <None Remove="Images\Shield Cell.png" />
-    <None Remove="Images\Syringe.png" />
-    <None Remove="Images\Ultimate Accelerant.png" />
-  </ItemGroup>
+	<ItemGroup>
+		<None Remove="Images\base.png" />
+		<None Remove="Images\Med Kit.png" />
+		<None Remove="Images\Phoenix Kit.png" />
+		<None Remove="Images\Shield Battery.png" />
+		<None Remove="Images\Shield Cell.png" />
+		<None Remove="Images\Syringe.png" />
+		<None Remove="Images\Ultimate Accelerant.png" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Watson" Version="7.0.14" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Watson" Version="7.0.14" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <Resource Include="Images\base.png" />
-    <Resource Include="Images\Med Kit.png" />
-    <Resource Include="Images\Phoenix Kit.png" />
-    <Resource Include="Images\Shield Battery.png" />
-    <Resource Include="Images\Shield Cell.png" />
-    <Resource Include="Images\Syringe.png" />
-    <Resource Include="Images\Ultimate Accelerant.png" />
-  </ItemGroup>
+	<ItemGroup>
+		<Resource Include="Images\base.png" />
+		<Resource Include="Images\Med Kit.png" />
+		<Resource Include="Images\Phoenix Kit.png" />
+		<Resource Include="Images\Shield Battery.png" />
+		<Resource Include="Images\Shield Cell.png" />
+		<Resource Include="Images\Syringe.png" />
+		<Resource Include="Images\Ultimate Accelerant.png" />
+	</ItemGroup>
 
 </Project>
