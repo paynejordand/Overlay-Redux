@@ -25,6 +25,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<PackageReference Include="PixiEditor.ColorPicker" Version="3.4.2.3" />
 		<PackageReference Include="Watson" Version="7.0.14" />
 	</ItemGroup>
 

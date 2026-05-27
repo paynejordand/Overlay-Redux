@@ -1,29 +1,37 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace Overlay_Redux
 {
-    /// <summary>
-    /// Interaction logic for Window1.xaml
-    /// </summary>
     public partial class MedsWindow : Window
     {
         public MedsViewModel ViewModel { get; } = new();
+
         public MedsWindow()
         {
             InitializeComponent();
             DataContext = ViewModel;
+            ApplySettings(App.Settings);
+        }
+
+        public void ApplySettings(Settings settings)
+        {
+            var converter = new BrushConverter();
+
+            Background = (Brush)converter.ConvertFromString(settings.MedsBackground)!;
+
+            var borderStyle = new Style(typeof(Border));
+            borderStyle.Setters.Add(new Setter(Border.BorderBrushProperty, (Brush)converter.ConvertFromString(settings.MedsBorderBrush)!));
+            borderStyle.Setters.Add(new Setter(Border.BorderThicknessProperty, new Thickness(settings.MedsBorderThickness)));
+            Resources["MedCountBorder"] = borderStyle;
+
+            var textStyle = new Style(typeof(TextBlock));
+            textStyle.Setters.Add(new Setter(TextBlock.ForegroundProperty, (Brush)converter.ConvertFromString(settings.MedsTextForeground)!));
+            textStyle.Setters.Add(new Setter(TextBlock.FontSizeProperty, 24.0));
+            textStyle.Setters.Add(new Setter(TextBlock.FontWeightProperty, FontWeights.Bold));
+            textStyle.Setters.Add(new Setter(TextBlock.PaddingProperty, new Thickness(2)));
+            Resources["MedCountText"] = textStyle;
         }
     }
 }
