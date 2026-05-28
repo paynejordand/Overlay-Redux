@@ -13,26 +13,24 @@
         </Style>
     </Window.Resources>
     <DockPanel>
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="Settings" Click="MenuSettings_Click"/>
+        </Menu>
+
         <StatusBar DockPanel.Dock="Bottom">
             <StatusBarItem>
                 <TextBlock x:Name="TxtServerStatus" Text="Server: Stopped"/>
             </StatusBarItem>
             <Separator/>
             <StatusBarItem>
-                <TextBlock x:Name="TxtVerified" Text="Unverified" Foreground="Red"/>
+                <TextBlock x:Name="TxtVerified" Text="Unverified"/>
             </StatusBarItem>
         </StatusBar>
 
         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-            <Button x:Name="BtnStartWSS" Click="BtnStartWSS_Click">
-                <TextBlock>Start server</TextBlock>
-            </Button>
-            <Button x:Name="BtnMeds" Click="BtnMeds_Click">
-                <TextBlock>Preview Meds Window</TextBlock>
-            </Button>
-            <Button x:Name="BtnRespawn" Click="BtnRespawn_Click">
-                <TextBlock>Preview Respawn Banner</TextBlock>
-            </Button>
+            <Button x:Name="BtnStartWSS" Click="BtnStartWSS_Click">Start server</Button>
+            <Button x:Name="BtnMeds" Click="BtnMeds_Click">Preview Meds Window</Button>
+            <Button x:Name="BtnRespawn" Click="BtnRespawn_Click">Preview Respawn Banner</Button>
         </StackPanel>
     </DockPanel>
 </Window>

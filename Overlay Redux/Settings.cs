@@ -17,12 +17,9 @@ namespace Overlay_Redux
         // Meds
         [JsonPropertyName("medsBackground")]
         public string MedsBackground { get; set; } = "#A9A9A9";
-        // FF0000
+        
         [JsonPropertyName("medsBorderBrush")]
-        public string MedsBorderBrush { get; set; } = "#800080";
-
-        [JsonPropertyName("medsBorderThickness")]
-        public double MedsBorderThickness { get; set; } = 1.25;
+        public string MedsBorderBrush { get; set; } = "#FF0000";
 
         [JsonPropertyName("medsTextForeground")]
         public string MedsTextForeground { get; set; } = "#FFFFFF";

@@ -23,7 +23,7 @@ namespace Overlay_Redux
 
             var borderStyle = new Style(typeof(Border));
             borderStyle.Setters.Add(new Setter(Border.BorderBrushProperty, (Brush)converter.ConvertFromString(settings.MedsBorderBrush)!));
-            borderStyle.Setters.Add(new Setter(Border.BorderThicknessProperty, new Thickness(settings.MedsBorderThickness)));
+            borderStyle.Setters.Add(new Setter(Border.BorderThicknessProperty, new Thickness(1.25)));
             Resources["MedCountBorder"] = borderStyle;
 
             var textStyle = new Style(typeof(TextBlock));

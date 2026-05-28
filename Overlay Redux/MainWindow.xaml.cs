@@ -21,8 +21,8 @@ namespace Overlay_Redux
     {
         private WSServer _wss;
         private CancellationTokenSource? _cts;
-        private MedsWindow? _medsWindow;
-        private RespawnWindow? _respawnWindow;
+        internal MedsWindow? _medsWindow;
+        internal RespawnWindow? _respawnWindow;
         public MainWindow()
         {
             InitializeComponent();
@@ -33,6 +33,11 @@ namespace Overlay_Redux
             _wss.MatchEnded += HandleMatchEnded;
             string appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
             string settingsPath = System.IO.Path.Combine(appData, "OverlayRedux", "settings.json");
+        }
+        private void MenuSettings_Click(object sender, RoutedEventArgs e)
+        {
+            var settingsWindow = new SettingsWindow();
+            settingsWindow.ShowDialog();
         }
 
         // --- Server ---
