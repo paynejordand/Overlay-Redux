@@ -23,7 +23,7 @@
             </StatusBarItem>
             <Separator/>
             <StatusBarItem>
-                <TextBlock x:Name="TxtVerified" Text="Unverified"/>
+                <TextBlock x:Name="TxtVerified" Text="Unverified" Foreground="Red"/>
             </StatusBarItem>
         </StatusBar>
 
