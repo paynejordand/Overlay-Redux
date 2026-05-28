@@ -31,8 +31,6 @@ namespace Overlay_Redux
             _wss.StatusUpdated += HandleStatusUpdated;
             _wss.MatchSetup += HandleMatchSetup;
             _wss.MatchEnded += HandleMatchEnded;
-            string appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-            string settingsPath = System.IO.Path.Combine(appData, "OverlayRedux", "settings.json");
         }
         private void MenuSettings_Click(object sender, RoutedEventArgs e)
         {
@@ -52,7 +50,7 @@ namespace Overlay_Redux
         {
             Dispatcher.Invoke(() => TxtServerStatus.Text = $"Server: {status}");
         }
-     
+
         // --- Meds Window ---
         private void BtnMeds_Click(object sender, RoutedEventArgs e)
         {
@@ -67,9 +65,12 @@ namespace Overlay_Redux
         {
             Dispatcher.Invoke(() =>
             {
+                if (!App.Settings.MedsWindowActive) return;
+
                 _medsWindow?.Close();
                 _medsWindow = new MedsWindow();
                 _medsWindow.Show();
+
             });
         }
 
@@ -106,6 +107,7 @@ namespace Overlay_Redux
         {
             Dispatcher.Invoke(() =>
             {
+                if (!App.Settings.RespawnWindowActive) return;
                 EnsureRespawnWindow();
                 _respawnWindow!.AddBanner(team, players);
             });
@@ -118,7 +120,7 @@ namespace Overlay_Redux
                 _respawnWindow = new RespawnWindow();
                 _respawnWindow.Show();
             }
-            
+
         }
 
         // --- Cleanup ---
