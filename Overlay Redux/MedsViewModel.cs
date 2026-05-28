@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Media;
 
 namespace Overlay_Redux
 {
@@ -49,6 +50,28 @@ namespace Overlay_Redux
         {
             get => _ultAccels;
             set { _ultAccels = value; OnPropertyChanged(nameof(UltAccels)); }
+        }
+
+        // Styling
+        private Brush _windowBackground;
+        public Brush WindowBackground
+        {
+            get => _windowBackground;
+            set { _windowBackground = value; OnPropertyChanged(nameof(WindowBackground)); }
+        }
+
+        private Brush _borderBrush;
+        public Brush BorderBrush
+        {
+            get => _borderBrush;
+            set { _borderBrush = value; OnPropertyChanged(nameof(BorderBrush)); }
+        }
+
+        private Brush _textForeground;
+        public Brush TextForeground
+        {
+            get => _textForeground;
+            set { _textForeground = value; OnPropertyChanged(nameof(TextForeground)); }
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;

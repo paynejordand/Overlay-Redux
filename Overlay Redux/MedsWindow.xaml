@@ -5,21 +5,22 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Overlay_Redux"
         mc:Ignorable="d"
-        Title="Meds" Height="325" Width="515" ResizeMode="NoResize" Background="#A9A9A9">
+        Title="Meds" Height="325" Width="515" ResizeMode="NoResize"
+        Background="{Binding WindowBackground}">
     <Window.Resources>
-        <Style x:Key="MedCountBorder" TargetType="Border">
-            <Setter Property="BorderBrush" Value="#FF0000"/>
-            <Setter Property="BorderThickness" Value="1.25"/>
+        <Style TargetType="Image">
+            <Setter Property="Height" Value="131"/>
+            <Setter Property="Width" Value="131"/>
         </Style>
-        <Style x:Key="MedCountText" TargetType="TextBlock">
+        <Style TargetType="Border">
+            <Setter Property="BorderThickness" Value="1.25"/>
+            <Setter Property="BorderBrush" Value="{Binding BorderBrush}"/>
+        </Style>
+        <Style TargetType="TextBlock">
             <Setter Property="Padding" Value="2"/>
             <Setter Property="FontSize" Value="24"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="#FFFFFF"/>
-        </Style>
-        <Style x:Key="MedCountImage" TargetType="Image">
-            <Setter Property="Height" Value="131"/>
-            <Setter Property="Width" Value="131" />
+            <Setter Property="Foreground" Value="{Binding TextForeground}"/>
         </Style>
     </Window.Resources>
     <Grid>
@@ -33,40 +34,40 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <Border Style="{DynamicResource MedCountBorder}">
+        <Border>
             <Grid>
-                <TextBlock Style="{DynamicResource MedCountText}" Text="{Binding Syringes}"/>
-                <Image Style="{StaticResource MedCountImage}" Source="/Images/Syringe.png"/>
+                <TextBlock Text="{Binding Syringes}"/>
+                <Image Source="/Images/Syringe.png"/>
             </Grid>
         </Border>
-        <Border Grid.Column="1" Style="{DynamicResource MedCountBorder}">
+        <Border Grid.Column="1">
             <Grid>
-                <TextBlock Style="{DynamicResource MedCountText}" Text="{Binding MedKits}"/>
-                <Image Style="{StaticResource MedCountImage}" Source="/Images/Med Kit.png"/>
+                <TextBlock Text="{Binding MedKits}"/>
+                <Image Source="/Images/Med Kit.png"/>
             </Grid>
         </Border>
-        <Border Grid.Column="2" Style="{DynamicResource MedCountBorder}">
+        <Border Grid.Column="2">
             <Grid>
-                <TextBlock Style="{DynamicResource MedCountText}" Text="{Binding PhoenixKits}"/>
-                <Image Style="{StaticResource MedCountImage}" Source="/Images/Phoenix Kit.png"/>
+                <TextBlock Text="{Binding PhoenixKits}"/>
+                <Image Source="/Images/Phoenix Kit.png"/>
             </Grid>
         </Border>
-        <Border Grid.Row="1" Style="{DynamicResource MedCountBorder}">
-            <Grid >
-                <TextBlock Style="{DynamicResource MedCountText}" Text="{Binding ShieldCells}"/>
-                <Image Style="{StaticResource MedCountImage}" Source="/Images/Shield Cell.png"/>
-            </Grid>
-        </Border>
-        <Border Grid.Column="1" Grid.Row="1" Style="{DynamicResource MedCountBorder}">
+        <Border Grid.Row="1">
             <Grid>
-                <TextBlock Style="{DynamicResource MedCountText}" Text="{Binding ShieldBatts}"/>
-                <Image Style="{StaticResource MedCountImage}" Source="/Images/Shield Battery.png"/>
+                <TextBlock Text="{Binding ShieldCells}"/>
+                <Image Source="/Images/Shield Cell.png"/>
             </Grid>
         </Border>
-        <Border Grid.Column="2" Grid.Row="1" Style="{DynamicResource MedCountBorder}">
-            <Grid >
-                <TextBlock Style="{DynamicResource MedCountText}" Text="{Binding UltAccels}"/>
-                <Image Style="{StaticResource MedCountImage}" Source="/Images/Ultimate Accelerant.png"/>
+        <Border Grid.Column="1" Grid.Row="1">
+            <Grid>
+                <TextBlock Text="{Binding ShieldBatts}"/>
+                <Image Source="/Images/Shield Battery.png"/>
+            </Grid>
+        </Border>
+        <Border Grid.Column="2" Grid.Row="1">
+            <Grid>
+                <TextBlock Text="{Binding UltAccels}"/>
+                <Image Source="/Images/Ultimate Accelerant.png"/>
             </Grid>
         </Border>
     </Grid>
