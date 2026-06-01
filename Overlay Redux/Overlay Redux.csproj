@@ -12,6 +12,7 @@
 		<RuntimeIdentifier>win-x64</RuntimeIdentifier>
 		<DebugType>embedded</DebugType>
 		<IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+		<ApplicationIcon>Images\favicon.ico</ApplicationIcon>
 	</PropertyGroup>
 
 	<ItemGroup>

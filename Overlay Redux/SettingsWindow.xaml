@@ -24,18 +24,8 @@
             <TabItem Header="General">
                 <StackPanel Margin="10">
                     <TextBlock Text="Active Windows" FontWeight="Bold" Margin="0,0,0,8"/>
-                    <CheckBox x:Name="ChkMedsActive" Content="Meds Window"/>
-                    <CheckBox x:Name="ChkRespawnActive" Content="Respawn Window"/>
-
-                    <TextBlock Text="Nucleus Hash" FontWeight="Bold" Margin="0,16,0,8"/>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        <TextBox x:Name="TxtNucleusHash" IsReadOnly="True" Grid.Column="0"/>
-                        <Button x:Name="BtnClearHash" Click="BtnClearHash_Click" Grid.Column="1" Margin="5,4,0,4" Padding="10,3">Clear</Button>
-                    </Grid>
+                    <CheckBox x:Name="ChkMedsActive" Content="Meds Window" IsChecked="{Binding MedsWindowActive}"/>
+                    <CheckBox x:Name="ChkRespawnActive" Content="Respawn Window" IsChecked="{Binding RespawnWindowActive}"/>
                 </StackPanel>
             </TabItem>
 
@@ -113,17 +103,44 @@
                                              HorizontalAlignment="Left"
                                              Margin="0,4"
                                              ColorChanged="PickerRespawn_ColorChanged"/>
-
-                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Preview"/>
-                        <TextBlock x:Name="TxtRespawnPreview"
-                       Grid.Row="2" Grid.Column="1"
-                       Text="Lost Lake Boys respawned Stinkerson and Hannibal"
-                       FontFamily="Arial"
-                       FontSize="14"
-                       Padding="8"
-                       TextWrapping="Wrap"
-                       Margin="0,4"/>
                     </Grid>
+                </StackPanel>
+            </TabItem>
+            <TabItem Header="Verification">
+                <StackPanel Margin="10">
+                    <TextBlock Text="Nucleus Hash" FontWeight="Bold" Margin="0,0,0,8"/>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="{Binding HashStatus}"/>
+                        <Button Grid.Column="1" Margin="5,0,0,0" Padding="10,3"
+                                Click="BtnClearHash_Click"
+                                IsEnabled="{Binding HashIsSet}">Clear</Button>
+                    </Grid>
+
+                    <Separator Margin="0,12"/>
+
+                    <TextBlock Text="Acquire Hash" FontWeight="Bold" Margin="0,0,0,8"/>
+                    <TextBlock Text="You must be alone in a custom match lobby before initiating."
+                               TextWrapping="Wrap" Margin="0,0,0,8" Foreground="Gray"/>
+
+                    <Button x:Name="BtnInitiate" Click="BtnInitiate_Click" 
+                            IsEnabled="{Binding CanStartVerification}"
+                            HorizontalAlignment="Left" Padding="10,3">Initiate</Button>
+
+                    <TextBlock Text="{Binding VerificationStatusText}" Margin="0,8,0,0"/>
+
+                    <StackPanel Margin="0,12,0,0">
+                        <TextBlock Text="Detected Player" FontWeight="Bold" Margin="0,0,0,8"/>
+                        <TextBlock x:Name="TxtCandidateName"
+                                   Text="{Binding CandidateName}"
+                                   Margin="0,0,0,8"/>
+                        <Button x:Name="BtnConfirm" Click="BtnConfirm_Click"
+                                IsEnabled="{Binding CanConfirm}"
+                                HorizontalAlignment="Left" Padding="10,3">Confirm</Button>
+                    </StackPanel>
                 </StackPanel>
             </TabItem>
         </TabControl>

@@ -1,4 +1,6 @@
-﻿using System.Windows;
+﻿using System.Diagnostics;
+using System.Text.Json;
+using System.Windows;
 using System.Windows.Media;
 
 namespace Overlay_Redux
@@ -7,9 +9,16 @@ namespace Overlay_Redux
     {
         private bool _isLoading = true;
         private bool _saved = false;
+        public SettingsViewModel ViewModel { get; } = new();
         public SettingsWindow()
         {
             InitializeComponent();
+            DataContext = ViewModel;
+            ViewModel.NucleusHash = App.Settings.NucleusHash;
+
+            var mainWindow = Application.Current.MainWindow as MainWindow;
+            mainWindow!._wss.PlayersGot += HandlePlayersGot;
+
             LoadSettings();
         }
 
@@ -18,9 +27,8 @@ namespace Overlay_Redux
             _isLoading = true;
             var s = App.Settings;
 
-            ChkMedsActive.IsChecked = s.MedsWindowActive;
-            ChkRespawnActive.IsChecked = s.RespawnWindowActive;
-            TxtNucleusHash.Text = s.NucleusHash;
+            ViewModel.MedsWindowActive = s.MedsWindowActive;
+            ViewModel.RespawnWindowActive = s.RespawnWindowActive;
 
             PickerMedsBackground.SelectedColor = (Color)ColorConverter.ConvertFromString(s.MedsBackground);
             PickerMedsBorder.SelectedColor = (Color)ColorConverter.ConvertFromString(s.MedsBorderBrush);
@@ -28,7 +36,6 @@ namespace Overlay_Redux
             PickerRespawnBackground.SelectedColor = (Color)ColorConverter.ConvertFromString(s.RespawnBackground);
             PickerRespawnText.SelectedColor = (Color)ColorConverter.ConvertFromString(s.RespawnTextForeground);
 
-            //UpdateRespawnPreview();
             _isLoading = false;
         }
 
@@ -36,9 +43,8 @@ namespace Overlay_Redux
         {
             var s = App.Settings;
 
-            s.MedsWindowActive = ChkMedsActive.IsChecked ?? true;
-            s.RespawnWindowActive = ChkRespawnActive.IsChecked ?? true;
-            s.NucleusHash = TxtNucleusHash.Text;
+            s.MedsWindowActive = ViewModel.MedsWindowActive;
+            s.RespawnWindowActive = ViewModel.RespawnWindowActive;
 
             s.MedsBackground = ToHex(PickerMedsBackground.SelectedColor);
             s.MedsBorderBrush = ToHex(PickerMedsBorder.SelectedColor);
@@ -64,20 +70,73 @@ namespace Overlay_Redux
                 MedsBorderBrush = ToHex(PickerMedsBorder.SelectedColor),
                 MedsTextForeground = ToHex(PickerMedsText.SelectedColor),
             };
-
             var mainWindow = Application.Current.MainWindow as MainWindow;
             mainWindow?._medsWindow?.ApplySettings(temp);
         }
 
         private void PickerRespawn_ColorChanged(object sender, RoutedEventArgs e)
         {
-            TxtRespawnPreview.Background = new SolidColorBrush(PickerRespawnBackground.SelectedColor);
-            TxtRespawnPreview.Foreground = new SolidColorBrush(PickerRespawnText.SelectedColor);
+            if (_isLoading) return;
+
+            var temp = new Settings
+            {
+                RespawnBackground = ToHex(PickerRespawnBackground.SelectedColor),
+                RespawnTextForeground = ToHex(PickerRespawnText.SelectedColor),
+            };
+            var mainWindow = Application.Current.MainWindow as MainWindow;
+            mainWindow?._respawnWindow?.ApplySettings(temp);
+        }
+
+        private void HandlePlayersGot(JsonElement players)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                if (players.GetArrayLength() != 1)
+                {
+                    ViewModel.VerificationFailureReason = "must be alone in a custom match lobby";
+                    ViewModel.VerificationStatus = SettingsViewModel.VerificationState.Failed;
+                    ViewModel.CandidateName = null;
+                    ViewModel.CandidateHash = null;
+                    return;
+                }
+
+                ViewModel.CandidateName = players[0].GetProperty("name").GetString();
+                ViewModel.CandidateHash = players[0].GetProperty("nucleusHash").GetString();
+                ViewModel.VerificationStatus = SettingsViewModel.VerificationState.Pending;
+            });
         }
 
         private void BtnClearHash_Click(object sender, RoutedEventArgs e)
         {
-            TxtNucleusHash.Text = null;
+            App.Settings.NucleusHash = null;
+            ViewModel.NucleusHash = null;
+            App.SettingsService.Save(App.Settings);
+            var mainWindow = Application.Current.MainWindow as MainWindow;
+            mainWindow!._wss.NucleusHash = App.Settings.NucleusHash;
+            mainWindow!.ViewModel.NucleusHash = App.Settings.NucleusHash;
+        }
+
+        private async void BtnInitiate_Click(object sender, RoutedEventArgs e)
+        {
+            ViewModel.VerificationStatus = SettingsViewModel.VerificationState.Waiting;
+            ViewModel.CandidateName = null;
+            ViewModel.CandidateHash = null;
+
+            var mainWindow = Application.Current.MainWindow as MainWindow;
+            await mainWindow!._wss.SendGetPlayers();
+        }
+
+        private void BtnConfirm_Click(object sender, RoutedEventArgs e)
+        {
+            App.Settings.NucleusHash = ViewModel.CandidateHash;
+            ViewModel.NucleusHash = ViewModel.CandidateHash;
+            ViewModel.CandidateName = null;
+            ViewModel.CandidateHash = null;
+            ViewModel.VerificationStatus = SettingsViewModel.VerificationState.Idle;
+            var mainWindow = Application.Current.MainWindow as MainWindow;
+            mainWindow!._wss.NucleusHash = App.Settings.NucleusHash;
+            mainWindow!.ViewModel.NucleusHash = App.Settings.NucleusHash;
+            App.SettingsService.Save(App.Settings);
         }
 
         protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
@@ -86,6 +145,7 @@ namespace Overlay_Redux
             {
                 var mainWindow = Application.Current.MainWindow as MainWindow;
                 mainWindow?._medsWindow?.ApplySettings(App.Settings);
+                mainWindow?._respawnWindow?.ApplySettings(App.Settings);
             }
             base.OnClosing(e);
         }

@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using WatsonWebserver;
 using WatsonWebserver.Core;
+using WatsonWebserver.Core.WebSockets;
 
 namespace Overlay_Redux
 {
@@ -16,8 +17,12 @@ namespace Overlay_Redux
         public event Action<string>? StatusUpdated;
         public event Action? MatchSetup;
         public event Action? MatchEnded;
+        public event Action<JsonElement>? PlayersGot;
+        
+        public string? NucleusHash { get; set; }
 
         private Webserver? _server;
+        private WebSocketSession? _currentSession;
         private string? _activePlayer;
         private readonly ConcurrentDictionary<string, Dictionary<string, int>> _allMeds = new();
 
@@ -41,6 +46,7 @@ namespace Overlay_Redux
             _server.WebSocket("/", async (ctx, session) =>
             {
                 Debug.WriteLine($"Client connected: {session.RemoteIp}");
+                _currentSession = session;
 
                 await foreach (var message in session.ReadMessagesAsync(ctx.Token))
                 {
@@ -58,6 +64,7 @@ namespace Overlay_Redux
                 }
 
                 StatusUpdated?.Invoke("Disconnected. Attempting to reconnect.");
+                _currentSession = null;
                 Debug.WriteLine($"Client disconnected: {session.RemoteIp}");
             });
 
@@ -76,8 +83,17 @@ namespace Overlay_Redux
         {
             var incoming = JsonSerializer.Deserialize<JsonElement>(rawMessage);
 
+            if (incoming.TryGetProperty("playerToken", out var tokenProp))
+            {
+                if (!incoming.TryGetProperty("players", out var playerProp)) return Task.CompletedTask;
+                PlayersGot?.Invoke(playerProp);
+                return Task.CompletedTask;
+            }
+            
+
             if (!incoming.TryGetProperty("category", out var categoryProp))
                 return Task.CompletedTask;
+
 
             string category = categoryProp.GetString()!;
 
@@ -119,6 +135,8 @@ namespace Overlay_Redux
                     break;
 
                 case "observerSwitched":
+                    if (!string.IsNullOrEmpty(NucleusHash) && incoming.GetProperty("observer").GetProperty("nucleusHash").GetString() != NucleusHash)
+                        break;
                     _activePlayer = incoming.GetProperty("target").GetProperty("nucleusHash").GetString()!;
                     FireMedsUpdated();
                     break;
@@ -162,6 +180,23 @@ namespace Overlay_Redux
                 meds[medType] += delta * quantity;
                 if (hash == _activePlayer) FireMedsUpdated();
             }
+        }
+
+        internal async Task<string> SendGetPlayers()
+        {
+            var message = JsonSerializer.Serialize(new Dictionary<string, object>
+            {
+                { "customMatch_GetLobbyPlayers", new { } }
+            });
+            Debug.WriteLine(message);
+            if (_currentSession == null)
+            {
+                Debug.WriteLine("No active session to send message.");
+                return ":(";
+            }
+            Debug.WriteLine(_currentSession == null ? "No active session to send message." : "Sending message to client...");
+            await _currentSession!.SendTextAsync(message);
+            return ":)";
         }
 
         public Dictionary<string, int> GetActivePlayerMeds()

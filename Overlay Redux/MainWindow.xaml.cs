@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 using System.Text;
+using System.Text.Json;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -19,23 +20,33 @@ namespace Overlay_Redux
     /// </summary>
     public partial class MainWindow : Window
     {
-        private WSServer _wss;
+        public MainWindowViewModel ViewModel { get; } = new();
+
+        internal WSServer _wss;
         private CancellationTokenSource? _cts;
         internal MedsWindow? _medsWindow;
         internal RespawnWindow? _respawnWindow;
+        internal SettingsWindow? _settingsWindow;
         public MainWindow()
         {
             InitializeComponent();
-            _wss = new(respawnCallback: HandleRespawn);
+            DataContext = ViewModel;
+            ViewModel.NucleusHash = App.Settings.NucleusHash;
+            _wss = new(respawnCallback: HandleRespawn)
+            {
+                NucleusHash = App.Settings.NucleusHash
+            };
             _wss.MedsUpdated += HandleMedsUpdated;
             _wss.StatusUpdated += HandleStatusUpdated;
             _wss.MatchSetup += HandleMatchSetup;
             _wss.MatchEnded += HandleMatchEnded;
         }
+
+        // --- Settings ---
         private void MenuSettings_Click(object sender, RoutedEventArgs e)
         {
-            var settingsWindow = new SettingsWindow();
-            settingsWindow.ShowDialog();
+            _settingsWindow = new SettingsWindow();
+            _settingsWindow.ShowDialog();
         }
 
         // --- Server ---
@@ -100,7 +111,7 @@ namespace Overlay_Redux
         private void BtnRespawn_Click(object sender, RoutedEventArgs e)
         {
             EnsureRespawnWindow();
-            _respawnWindow!.AddBanner(team: "RAH", players: ["Stink", "Monty"], duration: 0);
+            _respawnWindow!.AddBanner(team: "Lost Lake Boys", players: ["Stinkerson", "Hannibal of Carthage"], duration: 0);
         }
 
         private void HandleRespawn(string team, List<string> players)

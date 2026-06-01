@@ -23,7 +23,18 @@
             </StatusBarItem>
             <Separator/>
             <StatusBarItem>
-                <TextBlock x:Name="TxtVerified" Text="Unverified" Foreground="Red"/>
+                <TextBlock Text="{Binding VerifiedStatus}">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Foreground" Value="Red"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding VerifiedStatus}" Value="Verified">
+                                    <Setter Property="Foreground" Value="Green"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
             </StatusBarItem>
         </StatusBar>
 

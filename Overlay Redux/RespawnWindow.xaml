@@ -3,8 +3,19 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Overlay_Redux"
         mc:Ignorable="d"
         Title="Respawn Banner" ResizeMode="NoResize" SizeToContent="WidthAndHeight"
         ShowInTaskbar="False">
-    <StackPanel x:Name="BannerStack"/>
+    <Window.Resources>
+        <Style TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="Arial"/>
+            <Setter Property="FontSize" Value="32"/>
+            <Setter Property="Padding" Value="8"/>
+            <Setter Property="TextAlignment" Value="Center"/>
+            <Setter Property="Background" Value="{Binding Background}"/>
+            <Setter Property="Foreground" Value="{Binding Foreground}"/>
+        </Style>
+    </Window.Resources>
+    <StackPanel x:Name="BannerStack" HorizontalAlignment="Center"/>
 </Window>

@@ -9,19 +9,19 @@ namespace Overlay_Redux
 {
     public partial class RespawnWindow : Window
     {
-        private Brush? _background;
-        private Brush? _foreground;
+        public RespawnViewModel ViewModel { get; } = new();
 
         public RespawnWindow()
         {
+            DataContext = ViewModel;
             InitializeComponent();
             ApplySettings(App.Settings);
         }
 
         public void ApplySettings(Settings settings)
         {
-            _background = new SolidColorBrush((Color)ColorConverter.ConvertFromString(settings.RespawnBackground));
-            _foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(settings.RespawnTextForeground));
+            ViewModel.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString(settings.RespawnBackground));
+            ViewModel.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(settings.RespawnTextForeground));
         }
 
         public void AddBanner(string team, List<string> players, int duration = 5000)
@@ -29,12 +29,6 @@ namespace Overlay_Redux
             var banner = new TextBlock
             {
                 Text = $"{team} respawned {string.Join(", and ", players)}",
-                FontFamily = new FontFamily("Arial"),
-                FontSize = 24,
-                Foreground = _foreground,
-                Background = _background,
-                Padding = new Thickness(8),
-                TextAlignment = TextAlignment.Center,
             };
 
             BannerStack.Children.Add(banner);
