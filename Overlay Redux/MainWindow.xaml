@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Overlay_Redux"
         mc:Ignorable="d"
-        Title="Apex Overlay" Height="200" Width="400">
+        Title="Apex Overlay" Width="400" SizeToContent="Height">
     <Window.Resources>
         <Style TargetType="Button">
             <Setter Property="Padding" Value="5,2"/>
@@ -41,6 +41,7 @@
         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
             <Button x:Name="BtnStartWSS" Click="BtnStartWSS_Click">Start server</Button>
             <Button x:Name="BtnMeds" Click="BtnMeds_Click">Preview Meds Window</Button>
+            <Button x:Name="BtnNades" Click="BtnNades_Click">Preview Nades Window</Button>
             <Button x:Name="BtnRespawn" Click="BtnRespawn_Click">Preview Respawn Banner</Button>
         </StackPanel>
     </DockPanel>

@@ -26,6 +26,7 @@
                     <TextBlock Text="Active Windows" FontWeight="Bold" Margin="0,0,0,8"/>
                     <CheckBox x:Name="ChkMedsActive" Content="Meds Window" IsChecked="{Binding MedsWindowActive}"/>
                     <CheckBox x:Name="ChkRespawnActive" Content="Respawn Window" IsChecked="{Binding RespawnWindowActive}"/>
+                    <CheckBox x:Name="ChkNadesActive" Content="Nades Window" IsChecked="{Binding NadesWindowActive}"/>
                 </StackPanel>
             </TabItem>
 
@@ -69,6 +70,50 @@
                                                          HorizontalAlignment="Left"
                                                          Margin="0,4"
                                                          ColorChanged="PickerMeds_ColorChanged"/>
+                    </Grid>
+                </StackPanel>
+            </TabItem>
+
+            <TabItem Header="Nades">
+                <StackPanel Margin="10">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="140"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Background Color"/>
+                        <colorpicker:PortableColorPicker x:Name="PickerNadesBackground"
+                                             Grid.Row="0" Grid.Column="1"
+                                             Width="40" Height="40"
+                                             ShowAlpha="False"
+                                             HorizontalAlignment="Left"
+                                             Margin="0,4"
+                                             ColorChanged="PickerNades_ColorChanged"/>
+
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Border Color"/>
+                        <colorpicker:PortableColorPicker x:Name="PickerNadesBorder"
+                                             Grid.Row="1" Grid.Column="1"
+                                             Width="40" Height="40"
+                                             ShowAlpha="False"
+                                             HorizontalAlignment="Left"
+                                             Margin="0,4"
+                                             ColorChanged="PickerNades_ColorChanged"/>
+
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Text Color"/>
+                        <colorpicker:PortableColorPicker x:Name="PickerNadesText"
+                                             Grid.Row="2" Grid.Column="1"
+                                             Width="40" Height="40"
+                                             ShowAlpha="False"
+                                             HorizontalAlignment="Left"
+                                             Margin="0,4"
+                                             ColorChanged="PickerNades_ColorChanged"/>
                     </Grid>
                 </StackPanel>
             </TabItem>

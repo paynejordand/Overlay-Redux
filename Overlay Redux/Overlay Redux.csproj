@@ -38,6 +38,9 @@
 		<Resource Include="Images\Shield Cell.png" />
 		<Resource Include="Images\Syringe.png" />
 		<Resource Include="Images\Ultimate Accelerant.png" />
+		<Resource Include="Images\Arc.png" />
+		<Resource Include="Images\Frag.png" />
+		<Resource Include="Images\Thermite.png" />
 	</ItemGroup>
 
 </Project>

@@ -8,6 +8,9 @@ namespace Overlay_Redux
         [JsonPropertyName("medsWindowActive")]
         public bool MedsWindowActive { get; set; } = true;
 
+        [JsonPropertyName("nadesWindowActive")]
+        public bool NadesWindowActive { get; set; } = true;
+
         [JsonPropertyName("respawnWindowActive")]
         public bool RespawnWindowActive { get; set; } = true;
 
@@ -23,6 +26,16 @@ namespace Overlay_Redux
 
         [JsonPropertyName("medsTextForeground")]
         public string MedsTextForeground { get; set; } = "#FFFFFF";
+
+        // Nades
+        [JsonPropertyName("nadesBackground")]
+        public string NadesBackground { get; set; } = "#A9A9A9";
+
+        [JsonPropertyName("nadesBorderBrush")]
+        public string NadesBorderBrush { get; set; } = "#FF0000";
+
+        [JsonPropertyName("nadesTextForeground")]
+        public string NadesTextForeground { get; set; } = "#FFFFFF";
 
         // Respawn
         [JsonPropertyName("respawnBackground")]

@@ -36,6 +36,13 @@ namespace Overlay_Redux
             set { _respawnWindowActive = value; OnPropertyChanged(nameof(RespawnWindowActive)); }
         }
 
+        private bool _nadesWindowActive;
+        public bool NadesWindowActive
+        {
+            get => _nadesWindowActive;
+            set { _nadesWindowActive = value; OnPropertyChanged(nameof(NadesWindowActive)); }
+        }
+
         // Derived properties for UI binding
         public string HashStatus => string.IsNullOrEmpty(NucleusHash) ? "Unverified" : "Verified";
         public bool HashIsSet => !string.IsNullOrEmpty(NucleusHash);

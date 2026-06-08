@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Security.Policy;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -14,19 +15,23 @@ namespace Overlay_Redux
     public class WSServer(string host = "localhost", int port = 7777, Action<string, List<string>>? respawnCallback = null)
     {
         public event Action<Dictionary<string, int>>? MedsUpdated;
+        public event Action<Dictionary<string, int>>? NadesUpdated;
+        public event Action<Dictionary<string, (int Count, string Category)>>? InventoryUpdated;
         public event Action<string>? StatusUpdated;
         public event Action? MatchSetup;
         public event Action? MatchEnded;
         public event Action<JsonElement>? PlayersGot;
-        
+
         public string? NucleusHash { get; set; }
 
         private Webserver? _server;
         private WebSocketSession? _currentSession;
         private string? _activePlayer;
         private readonly ConcurrentDictionary<string, Dictionary<string, int>> _allMeds = new();
+        private readonly ConcurrentDictionary<string, Dictionary<string, int>> _allNades = new();
+        private readonly ConcurrentDictionary<string, Dictionary<string, (int Count, string Category)>> _allItems = new();
 
-        private static readonly Dictionary<string, string> Translator = new()
+        private static readonly Dictionary<string, string> MedsTranslator = new()
         {
             { "Syringe",                    "syringes" },
             { "Med Kit (Level 2)",          "medkits" },
@@ -34,6 +39,26 @@ namespace Overlay_Redux
             { "Shield Cell",                "shieldCells" },
             { "Shield Battery (Level 2)",   "shieldBatteries" },
             { "Ultimate Accelerant (Level 3)", "ultimateAccelerants" }
+        };
+
+        private static readonly Dictionary<string, string> NadesTranslator = new()
+        {
+            {"mp_weapon_grenade_emp",      "arc"},
+            {"mp_weapon_thermite_grenade", "thermite"},
+            {"mp_weapon_frag_grenade",     "frag"},
+        };
+
+        private static readonly Dictionary<string, (string Key, string Category)> ItemTranslator = new()
+        {
+            { "Syringe",                        ("syringes",            "meds") },
+            { "Med Kit (Level 2)",              ("medkits",             "meds") },
+            { "Phoenix Kit (Level 3)",          ("phoenixKits",         "meds") },
+            { "Shield Cell",                    ("shieldCells",         "meds") },
+            { "Shield Battery (Level 2)",       ("shieldBatteries",     "meds") },
+            { "Ultimate Accelerant (Level 3)",  ("ultimateAccelerants", "meds") },
+            { "Frag Grenade",                   ("frags",               "nades") },
+            { "Thermite Grenade",               ("thermites",           "nades") },
+            { "Arc Star",                       ("arcStars",            "nades") },
         };
 
         public void Start()
@@ -89,7 +114,7 @@ namespace Overlay_Redux
                 PlayersGot?.Invoke(playerProp);
                 return Task.CompletedTask;
             }
-            
+
 
             if (!incoming.TryGetProperty("category", out var categoryProp))
                 return Task.CompletedTask;
@@ -106,15 +131,7 @@ namespace Overlay_Redux
 
                 case "playerConnected":
                     string nucleusHash = incoming.GetProperty("player").GetProperty("nucleusHash").GetString()!;
-                    _allMeds[nucleusHash] = new Dictionary<string, int>
-                    {
-                        { "syringes",           4 },
-                        { "medkits",            0 },
-                        { "phoenixKits",        0 },
-                        { "shieldCells",        4 },
-                        { "shieldBatteries",    0 },
-                        { "ultimateAccelerants", 0 }
-                    };
+                    DefaultPlayerItems(nucleusHash);
                     break;
 
                 case "matchSetup":
@@ -124,9 +141,11 @@ namespace Overlay_Redux
                 case "gameStateChanged":
                     if (incoming.GetProperty("state").GetString() == "Resolution")
                     {
-                        MatchEnded?.Invoke();
                         _allMeds.Clear();
+                        _allNades.Clear();
+                        _allItems.Clear();
                         _activePlayer = null;
+                        MatchEnded?.Invoke();
                     }
                     break;
 
@@ -138,7 +157,7 @@ namespace Overlay_Redux
                     if (!string.IsNullOrEmpty(NucleusHash) && incoming.GetProperty("observer").GetProperty("nucleusHash").GetString() != NucleusHash)
                         break;
                     _activePlayer = incoming.GetProperty("target").GetProperty("nucleusHash").GetString()!;
-                    FireMedsUpdated();
+                    FireInventoryUpdated();
                     break;
 
                 case "playerRespawnTeam":
@@ -160,25 +179,69 @@ namespace Overlay_Redux
                 case "inventoryUse":
                     HandleInventoryChange(incoming, delta: -1);
                     break;
+                case "grenadeThrown":
+                    HandleLinkedEntityInventoryChange(incoming);
+                    break;
+                case "respawnFromDeathbox":
+                    Debug.WriteLine("------------- Deathbox Respawn -------------");                    
+                    Debug.WriteLine(incoming);
+                    break;
+                case "playerKilled":
+                    DefaultPlayerItems(incoming.GetProperty("victim").GetProperty("nucleusHash").GetString()!);
+                    break;
             }
 
             return Task.CompletedTask;
+        }
+
+        private void DefaultPlayerItems(string hash)
+        {
+            _allItems[hash] = new Dictionary<string, (int Count, string Category)>
+            {
+                { "syringes",            (4, "meds") },
+                { "medkits",             (0, "meds") },
+                { "phoenixKits",         (0, "meds") },
+                { "shieldCells",         (4, "meds") },
+                { "shieldBatteries",     (0, "meds") },
+                { "ultimateAccelerants", (0, "meds") },
+                { "frags",               (0, "nades") },
+                { "thermites",           (0, "nades") },
+                { "arcStars",            (0, "nades") },
+            };
+        }
+
+        private void HandleLinkedEntityInventoryChange(JsonElement incoming)
+        {
+            var modified = new Dictionary<string, object>
+            {
+                { "item",        incoming.GetProperty("linkedEntity").GetString()! },
+                { "quantity",    1 },
+                { "player",      incoming.GetProperty("player") }
+            };
+            var json = JsonSerializer.Serialize(modified);
+            var element = JsonSerializer.Deserialize<JsonElement>(json);
+            HandleInventoryChange(element, -1);
         }
 
         private void HandleInventoryChange(JsonElement incoming, int delta)
         {
             string item = incoming.GetProperty("item").GetString()!;
 
-            if (!Translator.TryGetValue(item, out string? medType))
+            if (!ItemTranslator.TryGetValue(item, out var entry))
+            {
                 return;
+            }
 
             string hash = incoming.GetProperty("player").GetProperty("nucleusHash").GetString()!;
             int quantity = incoming.GetProperty("quantity").GetInt32();
 
-            if (_allMeds.TryGetValue(hash, out var meds))
+            if (_allItems.TryGetValue(hash, out var items))
             {
-                meds[medType] += delta * quantity;
-                if (hash == _activePlayer) FireMedsUpdated();
+                (int Count, string Category) = items[entry.Key];
+                items[entry.Key] = (Count + delta * quantity, Category);
+
+                if (hash == _activePlayer)
+                    FireInventoryUpdated();
             }
         }
 
@@ -188,13 +251,10 @@ namespace Overlay_Redux
             {
                 { "customMatch_GetLobbyPlayers", new { } }
             });
-            Debug.WriteLine(message);
             if (_currentSession == null)
             {
-                Debug.WriteLine("No active session to send message.");
                 return ":(";
             }
-            Debug.WriteLine(_currentSession == null ? "No active session to send message." : "Sending message to client...");
             await _currentSession!.SendTextAsync(message);
             return ":)";
         }
@@ -215,9 +275,31 @@ namespace Overlay_Redux
             };
         }
 
+        public Dictionary<string, int> GetActivePlayerNades()
+        {
+            if (_activePlayer != null && _allNades.TryGetValue(_activePlayer, out var nades))
+                return nades;
+            return new Dictionary<string, int>
+            {
+                { "arc", 0 },
+                { "thermite", 0 },
+                { "frag", 0 }
+            };
+        }
+
         private void FireMedsUpdated()
         {
             MedsUpdated?.Invoke(GetActivePlayerMeds());
+        }
+
+        private void FireNadesUpdated()
+        {
+            NadesUpdated?.Invoke(GetActivePlayerNades());
+        }
+        private void FireInventoryUpdated()
+        {
+            if (_activePlayer != null && _allItems.TryGetValue(_activePlayer, out var items))
+                InventoryUpdated?.Invoke(items.ToDictionary(k => k.Key, v => (v.Value.Count, v.Value.Category)));
         }
 
         private static async Task DefaultRoute(HttpContextBase ctx)

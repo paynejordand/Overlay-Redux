@@ -28,11 +28,15 @@ namespace Overlay_Redux
             var s = App.Settings;
 
             ViewModel.MedsWindowActive = s.MedsWindowActive;
+            ViewModel.NadesWindowActive = s.NadesWindowActive;
             ViewModel.RespawnWindowActive = s.RespawnWindowActive;
 
             PickerMedsBackground.SelectedColor = (Color)ColorConverter.ConvertFromString(s.MedsBackground);
             PickerMedsBorder.SelectedColor = (Color)ColorConverter.ConvertFromString(s.MedsBorderBrush);
             PickerMedsText.SelectedColor = (Color)ColorConverter.ConvertFromString(s.MedsTextForeground);
+            PickerNadesBackground.SelectedColor = (Color)ColorConverter.ConvertFromString(s.NadesBackground);
+            PickerNadesBorder.SelectedColor = (Color)ColorConverter.ConvertFromString(s.NadesBorderBrush);
+            PickerNadesText.SelectedColor = (Color)ColorConverter.ConvertFromString(s.NadesTextForeground);
             PickerRespawnBackground.SelectedColor = (Color)ColorConverter.ConvertFromString(s.RespawnBackground);
             PickerRespawnText.SelectedColor = (Color)ColorConverter.ConvertFromString(s.RespawnTextForeground);
 
@@ -44,11 +48,15 @@ namespace Overlay_Redux
             var s = App.Settings;
 
             s.MedsWindowActive = ViewModel.MedsWindowActive;
+            s.NadesWindowActive = ViewModel.NadesWindowActive;
             s.RespawnWindowActive = ViewModel.RespawnWindowActive;
 
             s.MedsBackground = ToHex(PickerMedsBackground.SelectedColor);
             s.MedsBorderBrush = ToHex(PickerMedsBorder.SelectedColor);
             s.MedsTextForeground = ToHex(PickerMedsText.SelectedColor);
+            s.NadesBackground = ToHex(PickerNadesBackground.SelectedColor);
+            s.NadesBorderBrush = ToHex(PickerNadesBorder.SelectedColor);
+            s.NadesTextForeground = ToHex(PickerNadesText.SelectedColor);
             s.RespawnBackground = ToHex(PickerRespawnBackground.SelectedColor);
             s.RespawnTextForeground = ToHex(PickerRespawnText.SelectedColor);
 
@@ -63,7 +71,6 @@ namespace Overlay_Redux
         private void PickerMeds_ColorChanged(object sender, RoutedEventArgs e)
         {
             if (_isLoading) return;
-
             var temp = new Settings
             {
                 MedsBackground = ToHex(PickerMedsBackground.SelectedColor),
@@ -72,6 +79,19 @@ namespace Overlay_Redux
             };
             var mainWindow = Application.Current.MainWindow as MainWindow;
             mainWindow?._medsWindow?.ApplySettings(temp);
+        }
+
+        private void PickerNades_ColorChanged(object sender, RoutedEventArgs e)
+        {
+            if (_isLoading) return;
+            var temp = new Settings
+            {
+                NadesBackground = ToHex(PickerNadesBackground.SelectedColor),
+                NadesBorderBrush = ToHex(PickerNadesBorder.SelectedColor),
+                NadesTextForeground = ToHex(PickerNadesText.SelectedColor),
+            };
+            var mainWindow = Application.Current.MainWindow as MainWindow;
+            mainWindow?._nadesWindow?.ApplySettings(temp);
         }
 
         private void PickerRespawn_ColorChanged(object sender, RoutedEventArgs e)
@@ -145,6 +165,7 @@ namespace Overlay_Redux
             {
                 var mainWindow = Application.Current.MainWindow as MainWindow;
                 mainWindow?._medsWindow?.ApplySettings(App.Settings);
+                mainWindow?._nadesWindow?.ApplySettings(App.Settings);
                 mainWindow?._respawnWindow?.ApplySettings(App.Settings);
             }
             base.OnClosing(e);

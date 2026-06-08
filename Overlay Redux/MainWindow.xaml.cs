@@ -25,6 +25,7 @@ namespace Overlay_Redux
         internal WSServer _wss;
         private CancellationTokenSource? _cts;
         internal MedsWindow? _medsWindow;
+        internal NadesWindow? _nadesWindow;
         internal RespawnWindow? _respawnWindow;
         internal SettingsWindow? _settingsWindow;
         public MainWindow()
@@ -36,7 +37,7 @@ namespace Overlay_Redux
             {
                 NucleusHash = App.Settings.NucleusHash
             };
-            _wss.MedsUpdated += HandleMedsUpdated;
+            _wss.InventoryUpdated += HandleInventoryUpdated;
             _wss.StatusUpdated += HandleStatusUpdated;
             _wss.MatchSetup += HandleMatchSetup;
             _wss.MatchEnded += HandleMatchEnded;
@@ -72,16 +73,33 @@ namespace Overlay_Redux
             }
 
         }
+
+        // --- Nades Window ---
+        private void BtnNades_Click(object sender, RoutedEventArgs e)
+        {
+            if (_nadesWindow == null || !_nadesWindow.IsVisible)
+            {
+                _nadesWindow = new NadesWindow();
+                _nadesWindow.Show();
+            }
+        }
+
         private void HandleMatchSetup()
         {
             Dispatcher.Invoke(() =>
             {
-                if (!App.Settings.MedsWindowActive) return;
-
-                _medsWindow?.Close();
-                _medsWindow = new MedsWindow();
-                _medsWindow.Show();
-
+                if (App.Settings.MedsWindowActive)
+                {
+                    _medsWindow?.Close();
+                    _medsWindow = new MedsWindow();
+                    _medsWindow.Show();
+                }
+                if (App.Settings.NadesWindowActive)
+                {
+                    _nadesWindow?.Close();
+                    _nadesWindow = new NadesWindow();
+                    _nadesWindow.Show();
+                }
             });
         }
 
@@ -90,7 +108,9 @@ namespace Overlay_Redux
             Dispatcher.Invoke(() =>
             {
                 _medsWindow?.Close();
+                _nadesWindow?.Close();
                 _medsWindow = null;
+                _nadesWindow = null;
             });
         }
         private void HandleMedsUpdated(Dictionary<string, int> meds)
@@ -104,6 +124,28 @@ namespace Overlay_Redux
                 _medsWindow.ViewModel.ShieldCells = meds["shieldCells"];
                 _medsWindow.ViewModel.ShieldBatts = meds["shieldBatteries"];
                 _medsWindow.ViewModel.UltAccels = meds["ultimateAccelerants"];
+            });
+        }
+        private void HandleInventoryUpdated(Dictionary<string, (int Count, string Category)> items)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                if (_medsWindow != null && _medsWindow.IsVisible)
+                {
+                    _medsWindow.ViewModel.Syringes = items["syringes"].Count;
+                    _medsWindow.ViewModel.MedKits = items["medkits"].Count;
+                    _medsWindow.ViewModel.PhoenixKits = items["phoenixKits"].Count;
+                    _medsWindow.ViewModel.ShieldCells = items["shieldCells"].Count;
+                    _medsWindow.ViewModel.ShieldBatts = items["shieldBatteries"].Count;
+                    _medsWindow.ViewModel.UltAccels = items["ultimateAccelerants"].Count;
+                }
+
+                if (_nadesWindow != null && _nadesWindow.IsVisible)
+                {
+                    _nadesWindow.ViewModel.Frags = items["frags"].Count;
+                    _nadesWindow.ViewModel.Thermites = items["thermites"].Count;
+                    _nadesWindow.ViewModel.Arcs = items["arcStars"].Count;
+                }
             });
         }
 
@@ -131,7 +173,6 @@ namespace Overlay_Redux
                 _respawnWindow = new RespawnWindow();
                 _respawnWindow.Show();
             }
-
         }
 
         // --- Cleanup ---
@@ -140,6 +181,7 @@ namespace Overlay_Redux
             _cts?.Cancel();
             _wss?.Stop();
             _medsWindow?.Close();
+            _nadesWindow?.Close();
             _respawnWindow?.Close();
             base.OnClosing(e);
         }
