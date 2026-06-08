@@ -14,8 +14,6 @@ namespace Overlay_Redux
 {
     public class WSServer(string host = "localhost", int port = 7777, Action<string, List<string>>? respawnCallback = null)
     {
-        public event Action<Dictionary<string, int>>? MedsUpdated;
-        public event Action<Dictionary<string, int>>? NadesUpdated;
         public event Action<Dictionary<string, (int Count, string Category)>>? InventoryUpdated;
         public event Action<string>? StatusUpdated;
         public event Action? MatchSetup;
@@ -31,6 +29,7 @@ namespace Overlay_Redux
         private readonly ConcurrentDictionary<string, Dictionary<string, int>> _allNades = new();
         private readonly ConcurrentDictionary<string, Dictionary<string, (int Count, string Category)>> _allItems = new();
 
+        // Bottomless Batteries Amp (Level 3)
         private static readonly Dictionary<string, (string Key, string Category)> ItemTranslator = new()
         {
             { "Syringe",                        ("syringes",            "meds") },
@@ -242,33 +241,6 @@ namespace Overlay_Redux
             return ":)";
         }
 
-        public Dictionary<string, int> GetActivePlayerMeds()
-        {
-            if (_activePlayer != null && _allMeds.TryGetValue(_activePlayer, out var meds))
-                return meds;
-
-            return new Dictionary<string, int>
-            {
-                { "syringes",            0 },
-                { "medkits",             0 },
-                { "phoenixKits",         0 },
-                { "shieldCells",         0 },
-                { "shieldBatteries",     0 },
-                { "ultimateAccelerants", 0 }
-            };
-        }
-
-        public Dictionary<string, int> GetActivePlayerNades()
-        {
-            if (_activePlayer != null && _allNades.TryGetValue(_activePlayer, out var nades))
-                return nades;
-            return new Dictionary<string, int>
-            {
-                { "arc", 0 },
-                { "thermite", 0 },
-                { "frag", 0 }
-            };
-        }
         private void FireInventoryUpdated()
         {
             if (_activePlayer != null && _allItems.TryGetValue(_activePlayer, out var items))
