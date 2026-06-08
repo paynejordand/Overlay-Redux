@@ -31,23 +31,6 @@ namespace Overlay_Redux
         private readonly ConcurrentDictionary<string, Dictionary<string, int>> _allNades = new();
         private readonly ConcurrentDictionary<string, Dictionary<string, (int Count, string Category)>> _allItems = new();
 
-        private static readonly Dictionary<string, string> MedsTranslator = new()
-        {
-            { "Syringe",                    "syringes" },
-            { "Med Kit (Level 2)",          "medkits" },
-            { "Phoenix Kit (Level 3)",      "phoenixKits" },
-            { "Shield Cell",                "shieldCells" },
-            { "Shield Battery (Level 2)",   "shieldBatteries" },
-            { "Ultimate Accelerant (Level 3)", "ultimateAccelerants" }
-        };
-
-        private static readonly Dictionary<string, string> NadesTranslator = new()
-        {
-            {"mp_weapon_grenade_emp",      "arc"},
-            {"mp_weapon_thermite_grenade", "thermite"},
-            {"mp_weapon_frag_grenade",     "frag"},
-        };
-
         private static readonly Dictionary<string, (string Key, string Category)> ItemTranslator = new()
         {
             { "Syringe",                        ("syringes",            "meds") },
@@ -285,16 +268,6 @@ namespace Overlay_Redux
                 { "thermite", 0 },
                 { "frag", 0 }
             };
-        }
-
-        private void FireMedsUpdated()
-        {
-            MedsUpdated?.Invoke(GetActivePlayerMeds());
-        }
-
-        private void FireNadesUpdated()
-        {
-            NadesUpdated?.Invoke(GetActivePlayerNades());
         }
         private void FireInventoryUpdated()
         {
